@@ -1,76 +1,69 @@
 <template>
-    <div>
-        <h2>Computed - 계산된 속성</h2>
-        - 템플릿 문법이 길어지면 가독성이 떨어지고, 유지보수가 어려워지는 것을 방지<br />
-        - 계산한 것을 캐싱해주고, 그것을 호출함, 데이터가 변경될 때 다시 계산해줌
-        <div class="box">
-            <h3>{{ lunch.name }}</h3>
-            <p>엄마 점심은?</p>
-            <p style="font-size: 28px; font-weight: 600; color: red;">{{ hasMenu }}</p>
-            <p style="font-size: 28px; font-weight: 600; color: red;">{{ hasMenu }}</p>
-            <p style="font-size: 28px; font-weight: 600; color: red;">{{ hasMenu }}</p>
-            <p style="font-size: 28px; font-weight: 600; color: blue;">{{ exisMenu() }}</p>
-            <p style="font-size: 28px; font-weight: 600; color: blue;">{{ exisMenu() }}</p>
-            <p style="font-size: 28px; font-weight: 600; color: blue;">{{ exisMenu() }}</p>
-            <button v-on:click="counter++" style="background: #333; color: #fff;">{{ counter }}</button>
-            <hr />
-            <p>{{ fullName }}</p>
-        </div>
+    <div class="box">
+        <h2>watch</h2>
+        <p class="description">Reactivity 데이타 상태가 변경되었을때를 감지하여 다른 작업을 수행</p>
+        <code>
+            watch(감지할 반응형 데이타, 콜백함수)<br>
+            watch(감지할 반응형 데이타, (새로운값, 기존값)=>{ })<br>
+        </code>
     </div>
 </template>
 
 <script>
-import { computed, ref } from 'vue';
+import { ref, watch, reactive } from 'vue';
 
 export default {
     setup() {
-        const lunch = {
-            name: '엄마가 해준 점심',
-            menu: [
-                '볶음밥',
-                '닭갈비',
-                '마라탕'
-            ]
-        }
-        const hasMenu = computed(() => {
-            console.log('computed');
-            return lunch.menu.length > 0 ? '식탁와서 먹어라' : '엄마 힘들다';
+        const message = ref('Hello World!!');
+
+        watch(message, (newValue, oldValue) => {
+            console.log('newValue: ', newValue)
+            console.log('oldValue: ', oldValue)
         })
 
-        const exisMenu = () => {
-            console.log('일반 함수');
-            return lunch.menu.length > 0 ? '식탁와서 먹어라' : '엄마 힘들다';
-        }
+        const x = ref(0);
+        const y = ref(0);
 
-        const counter = ref(0);
-
-        const firstName = ref('홍');
-        const lastName = ref('길동');
-        // const fullName = computed(()=> firstName.value +' '+ lastName.value)
-        const fullName = computed({
-            get() {
-                return firstName.value + ' ' + lastName.value
-            },
-            set(value) {
-                console.log('value ', value);
-                [firstName.value, lastName.value] = value.split(' ');
-            }
+        watch(() => x.value + y.value, (sum, oldSum) => {
+            console.log('sum: ', sum)
+            console.log('oldSum: ', oldSum)
         })
 
-        console.log('수정 전-', fullName.value);
-        fullName.value = '전 지현';
-        console.log('수정 후-', fullName.value); //readonly 경고뜸
+        //따로따로 감지할 수도 있음
+        watch([x, y], ([newX, newY]) => {
+            console.log('x,y를 동시에: ', newX, newY)
+        });
+
+        const hotel = reactive({
+            name: 'shilla',
+            emptyRooms: 45
+        })
+
+        watch(()=>hotel.emptyRooms, (newValue, oldValue) => {
+            console.log('hotel.enptyRooms: ',newValue)
+            console.log('이전의 빈방: ',oldValue)
+        })
 
 
-        return {
-            lunch,
-            hasMenu,
-            exisMenu,
-            counter,
-            fullName
-        }
+        return { message, x, y, hotel }
     }
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style>
+.box {
+    border: 1px solid lightgrey;
+    margin: 50px 10px;
+    padding: 0 20px 20px;
+}
+
+p {
+    margin: 3px;
+}
+
+.description {
+    padding-bottom: 10px;
+    color: #888;
+    font-size: 14px
+}
+</style>
